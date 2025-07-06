@@ -28,7 +28,8 @@ const tgData = sign("tg", initData, botToken) // TgUserData | false
 const vkData = sign("vk", initData, vkSecret) // VkUserData | false
 ```
 
-## VK - Init Data Frontend:
+## Usage in the frontend
+#### VK
 ```typescript jsx
 const data = async () => new Promise<string | undefined>(async (resolve) => {
     try {
@@ -77,7 +78,7 @@ const data = async () => new Promise<string | undefined>(async (resolve) => {
 const initData = await data()
 ```
 
-## Telegram - Init Data Frontend:
+#### Telegram
 ```typescript jsx
 function prepareAuthData(initData: string): string {
     const params = new URLSearchParams(initData);
