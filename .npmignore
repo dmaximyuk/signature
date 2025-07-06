@@ -1,0 +1,13 @@
+src
+test
+tsconfig.json
+bun.lockb
+bun.lock
+index.ts
+.prettierrc
+.prettierignore
+node_modules
+.idea
+.vscode
+.code
+*.test.*
