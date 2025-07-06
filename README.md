@@ -80,8 +80,8 @@ const initData = await data()
 
 #### Telegram
 ```typescript jsx
-function prepareAuthData(initData: string): string {
-    const params = new URLSearchParams(initData);
+function prepareAuthData(tgSecret: string): string {
+    const params = new URLSearchParams(tgSecret);
 
     const authData = {
         h: params.get("hash") || "",
