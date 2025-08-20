@@ -1,5 +1,4 @@
 import { createHmac } from "crypto";
-import { unpack } from "msgpackr";
 
 import { type PackData } from "../models";
 import { type DecodeFunction } from "../../models";
@@ -19,41 +18,33 @@ export interface Response {
   };
 }
 
-// const SECRET_KEY_CACHE = new Map<string, Buffer>();
-
 export const decode: DecodeFunction<Response> = (params, signature) => {
   if (signature == null || signature.constructor !== String) return;
 
   try {
-    const parsed = unpack(Buffer.from(signature, "base64url")) as PackData<Response>;
+    const parsed = JSON.parse(atob(signature)) as PackData<Response>;
     if (parsed == null) return;
 
-    const hash = parsed.h as Buffer;
-    const data = parsed.d as string | Buffer;
+    const hash = parsed.h;
+    const data = parsed.d;
     const user = parsed.u;
-    const authDate = parsed.a as number;
-    const queryId = parsed.q as string;
+    const authDate = parsed.a;
+    const queryId = parsed.q;
 
     if (!(hash && data && user && authDate)) return;
 
-    // let secretKey = SECRET_KEY_CACHE.get(params.botToken);
-    // if (!secretKey) {
-    //   secretKey = createHmac("sha256", "WebAppData").update(params.botToken).digest();
-    //   SECRET_KEY_CACHE.set(params.botToken, secretKey);
-    // }
-    const secretKey = createHmac("sha256", "WebAppData").update(params.botToken).digest();
-    const computed = createHmac("sha256", secretKey).update(data).digest();
+    const secretKey = createHmac("sha256", "WebAppData").update(params.token).digest();
+    const computed = createHmac("sha256", secretKey).update(data).digest("hex");
 
-    if (hash.constructor !== Buffer || hash.length !== computed.length) return;
-    for (let i = 0; i < hash.length; i++) {
-      if (hash[i] !== computed[i]) return;
+    if (hash === computed) {
+      return {
+        queryId,
+        authDate,
+        user,
+      } as unknown as Response;
     }
 
-    return {
-      queryId,
-      authDate,
-      user: user,
-    };
+    return;
   } catch {
     return;
   }

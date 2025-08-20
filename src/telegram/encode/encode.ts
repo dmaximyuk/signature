@@ -1,5 +1,3 @@
-import { pack } from "msgpackr";
-
 import { type PackData } from "../models";
 import { type EncodeFunction } from "../../models";
 
@@ -19,15 +17,15 @@ export const encode: EncodeFunction = (rawInitData) => {
       .map(([k, v]) => `${k}=${v}`)
       .join("\n");
 
-    // ⚡ возвращаем именно Buffer, не base64
-    return pack({
-      q: queryId,
-      a: authDate,
-      // ⚡ hash сразу кодируем в Buffer (hex -> bytes)
-      h: Buffer.from(hash, "hex"),
-      d: data,
-      u: JSON.parse(user),
-    } as PackData).toBase64({ alphabet: "base64url" });
+    return btoa(
+      JSON.stringify({
+        q: queryId,
+        a: authDate,
+        h: hash,
+        d: data,
+        u: JSON.parse(user),
+      } as PackData<any>)
+    );
   } catch {
     return;
   }

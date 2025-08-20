@@ -1,7 +1,7 @@
 export interface PackData<T extends any> {
   q: string;
   a: number;
-  h: Buffer<ArrayBuffer>;
-  d: any;
+  h: string;
+  d: string;
   u: T;
 }

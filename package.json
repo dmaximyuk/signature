@@ -1,24 +1,36 @@
 {
-  "version": "1.0.4",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "scripts": {
-    "test": "bun test",
-    "dev": "bun run ./index.ts",
-    "build": "rm -rf dist && bun x tsc"
-
-  },
-  "repository": {
-    "url": "git+https://github.com/dmaximyuk/signature.git",
-    "type": "git"
-  },
-  "private": false,
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "name": "@dmaximyuk/signature",
-  "module": "index.ts",
+  "version": "1.0.4",
+  "description": "Quick signature for Telegram and VKontakte on Bun.js",
+  "homepage": "https://github.com/dmaximyuk/signature#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmaximyuk/signature.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dmaximyuk/signature/issues"
+  },
+  "license": "MIT",
+  "type": "module",
+  "private": false,
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "index.ts",
+  "exports": {
+    "./vkontakte": {
+      "import": "./dist/vkontakte.js",
+      "types": "./dist/vkontakte.d.ts"
+    },
+    "./telegram": {
+      "import": "./dist/telegram.js",
+      "types": "./dist/telegram.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "bun run ./index.ts",
+    "build": "rm -rf dist && bun x tsc",
+    "test": "bun test"
+  },
   "keywords": [
     "vk",
     "vkontakte",
@@ -31,27 +43,11 @@
     "start",
     "crypto"
   ],
-  "homepage": "https://github.com/dmaximyuk/signature#readme",
-  "exports": {
-    "./vkontakte": {
-      "types": "./dist/vkontakte.d.ts",
-      "import": "./dist/vkontakte.js"
-    },
-    "./telegram": {
-      "types": "./dist/telegram.d.ts",
-      "import": "./dist/telegram.js"
-    }
+  "peerDependencies": {
+    "typescript": "^5"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "prettier": "^3.6.2",
-    "tsc-alias": "^1.8.16"
-  },
-  "description": "Quick signature for Telegram and VKontakte on Bun.js",
-  "dependencies": {
-    "msgpackr": "^1.11.5"
-  },
-  "bugs": {
-    "url": "https://github.com/dmaximyuk/signature/issues"
+    "prettier": "^3.6.2"
   }
 }

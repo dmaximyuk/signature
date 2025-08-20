@@ -12,24 +12,70 @@ At the exit, you will receive either **false** or a **typed signature response**
 bun add @dmaximyuk/signature
 ```
 
-## Performance ( Apple M4 Pro / 24/512gb )
-##### 100_000 elements:
-```
-1. TG:         164.29ms / 100_000 elements | 0.001643ms / 1 element
-2. VK:         139.85ms / 100_000 elements | 0.001399ms / 1 element
-3. VK Default: 233.25ms / 100_000 elements | 0.002332ms / 1 element
-```
+## Important!
+Don't be afraid of the weight of the library. If tree shaking is enabled, then the code for the backend will not get into the frontend, and in the opposite direction!
+> Just don't forget to add shaking =)
 
 ## Usage in the frontend
+#### Telegram Mini Apps
 ```typescript jsx
-import { encode } from "@dmaximyuk/signature"
+import { encode } from "@dmaximyuk/signature/telegram"
 
-const sign = encode("your_raw_signature") // string
+const sign = encode("your_raw_init_data") // <= paste raw init data and get string or undefined
+```
+
+#### VK Mini Apps - example
+```typescript jsx
+const data = async () => new Promise<string | undefined>(async (resolve) => {
+    try {
+        let data: Record<string, string | number> | undefined;
+        const support = await bridge.supportsAsync("VKWebAppGetLaunchParams");
+
+        if (support) {
+            try {
+                data = await bridge.send("VKWebAppGetLaunchParams");
+            } catch (err) { 
+                console.log(err) 
+            };
+        }
+
+        if (!support || !data) {
+            const query = window.location.search.slice(1);
+            const parce = '{"' + decodeURI(query
+                .replace(/&/g, "\",\"")
+                .replace(/=/g, "\":\"")
+            ) + '"}';
+            data = JSON.parse(parce);
+        }
+
+        if (!data) {
+            resolve(undefined); 
+            return;
+        }
+
+        const param = Object.keys(data).sort().reduce((param, key, index, array) => {
+            if (key.startsWith("vk_")) { param += `${key}=${data![key]}&` }
+            if (index === array.length - 1) { param += `sign=${data!["sign"]}` }
+            return param;
+        }, "").replace(",", "%2C");
+
+        if (!param) { 
+            return resolve(undefined) 
+        }
+        
+        resolve(param);
+
+    } catch { 
+        resolve(undefined) 
+    }
+});
+
+const initData = await data()
 ```
 
 ## Usage in the backend
 ```typescript
-import { decode } from "@dmaximyuk/signature"
+import { decode as telegramDecode } from "@dmaximyuk/signature/telegram"
 
 const tgData = decode("tg", botToken, initData) // TgUserData | false
 const vkData = decode("vk", vkSecret, initData) // VkUserData | false
