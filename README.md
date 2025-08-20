@@ -20,87 +20,19 @@ bun add @dmaximyuk/signature
 3. VK Default: 233.25ms / 100_000 elements | 0.002332ms / 1 element
 ```
 
+## Usage in the frontend
+```typescript jsx
+import { encode } from "@dmaximyuk/signature"
+
+const sign = encode("your_raw_signature") // string
+```
+
 ## Usage in the backend
 ```typescript
-import sign, { type TgUserData, type VkUserData } from "@dmaximyuk/signature"
+import { decode } from "@dmaximyuk/signature"
 
-const tgData = sign("tg", initData, botToken) // TgUserData | false
-const vkData = sign("vk", initData, vkSecret) // VkUserData | false
-```
-
-## Usage in the frontend
-#### VK
-```typescript jsx
-const data = async () => new Promise<string | undefined>(async (resolve) => {
-    try {
-        let data: Record<string, string | number> | undefined;
-        const support = await bridge.supportsAsync("VKWebAppGetLaunchParams");
-
-        if (support) {
-            try {
-                data = await bridge.send("VKWebAppGetLaunchParams");
-            } catch (err) { 
-                console.log(err) 
-            };
-        }
-
-        if (!support || !data) {
-            const query = window.location.search.slice(1);
-            const parce = '{"' + decodeURI(query
-                .replace(/&/g, "\",\"")
-                .replace(/=/g, "\":\"")
-            ) + '"}';
-            data = JSON.parse(parce);
-        }
-
-        if (!data) {
-            resolve(undefined); 
-            return;
-        }
-
-        const param = Object.keys(data).sort().reduce((param, key, index, array) => {
-            if (key.startsWith("vk_")) { param += `${key}=${data![key]}&` }
-            if (index === array.length - 1) { param += `sign=${data!["sign"]}` }
-            return param;
-        }, "").replace(",", "%2C");
-
-        if (!param) { 
-            return resolve(undefined) 
-        }
-        
-        resolve(param);
-
-    } catch { 
-        resolve(undefined) 
-    }
-});
-
-const initData = await data()
-```
-
-#### Telegram
-```typescript jsx
-function prepareAuthData(tgSecret: string): string {
-    const params = new URLSearchParams(tgSecret);
-
-    const authData = {
-        h: params.get("hash") || "",
-        u: {
-            query_id: params.get("query_id") || "",
-            auth_date: +(params.get("auth_date") || ""),
-            user: JSON.parse(params.get("user") || ""),
-        },
-        d: Array.from(params.entries())
-            .filter(([key]) => key !== "hash")
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([k, v]) => `${k}=${v}`)
-            .join("\n"),
-    };
-
-    return btoa(JSON.stringify(authData));
-}
-
-const initData = prepareAuthData(tgSecret);
+const tgData = decode("tg", botToken, initData) // TgUserData | false
+const vkData = decode("vk", vkSecret, initData) // VkUserData | false
 ```
 
 ## Warning!

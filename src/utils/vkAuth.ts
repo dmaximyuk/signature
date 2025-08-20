@@ -1,7 +1,7 @@
 import { createHmac } from "crypto";
-import { VkUserData } from "../models";
+import { type VKontakteUserData } from "@/pkg/models";
 
-function vkAuth(params: string, secret: string): VkUserData | undefined {
+function vkAuth(params: string, secret: string): VKontakteUserData | undefined {
   try {
     const signIndex = params.lastIndexOf("sign=");
     if (signIndex === -1 || signIndex + 5 >= params.length) return;
@@ -12,7 +12,7 @@ function vkAuth(params: string, secret: string): VkUserData | undefined {
     const digest = createHmac("sha256", secret).update(query).digest("base64url");
     if (sign !== digest) return;
 
-    const result: Partial<VkUserData> = {};
+    const result: Partial<VKontakteUserData> = {};
     let keyStart = 0;
     let keyEnd = -1;
     let valueStart = -1;
@@ -35,7 +35,7 @@ function vkAuth(params: string, secret: string): VkUserData | undefined {
       }
     }
 
-    return result as VkUserData;
+    return result as VKontakteUserData;
   } catch {
     return;
   }

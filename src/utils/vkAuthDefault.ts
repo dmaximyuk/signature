@@ -1,5 +1,5 @@
 import { createHmac } from "crypto";
-import { VkUserData } from "../models";
+import { type VKontakteUserData } from "@/pkg/models";
 
 function verifyLaunchParams(searchOrParsedUrlQuery: string, secretKey: string) {
   try {
@@ -41,7 +41,7 @@ function verifyLaunchParams(searchOrParsedUrlQuery: string, secretKey: string) {
       .replace(/=$/, "");
 
     if (paramsHash === sign) {
-      const result: Partial<VkUserData> = {};
+      const result: Partial<VKontakteUserData> = {};
 
       for (let i = 0; i <= queryParams.length; i++) {
         const r = queryParams[i];
@@ -51,7 +51,7 @@ function verifyLaunchParams(searchOrParsedUrlQuery: string, secretKey: string) {
         }
       }
 
-      return result as VkUserData;
+      return result as VKontakteUserData;
     }
   } catch (e) {
     return;

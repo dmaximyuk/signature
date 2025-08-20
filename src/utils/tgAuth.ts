@@ -1,11 +1,11 @@
 import { createHmac } from "crypto";
-import { TgUserData } from "../models";
+import { type TelegramUserData } from "@/pkg/models";
 
 const SECRET_KEY_CACHE = new Map<string, Buffer>();
 
-function tgAuth(initData: string, botToken: string): TgUserData | undefined {
+function tgAuth(initData: string, botToken: string): TelegramUserData | undefined {
   try {
-    const { d, h, u } = JSON.parse(atob(initData)) as { h: string; u: TgUserData; d: string };
+    const { d, h, u } = JSON.parse(atob(initData)) as { h: string; u: TelegramUserData; d: string };
     if (!h || !u || !d || typeof u !== "object") return;
 
     let secretKey = SECRET_KEY_CACHE.get(botToken);
