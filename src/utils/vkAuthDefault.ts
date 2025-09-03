@@ -1,4 +1,4 @@
-// import { createHmac } from "crypto";
+// import { createHmac } from "node:crypto";
 // import { type VKontakteUserData } from "@/pkg/models";
 //
 // function verifyLaunchParams(searchOrParsedUrlQuery: string, secretKey: string) {

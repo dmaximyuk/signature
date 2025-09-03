@@ -1,5 +1,5 @@
-import { type PackData } from "../models";
-import { type EncodeFunction } from "../../models";
+import { type EncodeFunction } from "../../models.js";
+import { type PackData } from "../models.js";
 
 export const encode: EncodeFunction = (rawInitData) => {
   if (typeof rawInitData !== "string") return;

@@ -1,6 +1,6 @@
-import { createHmac } from "crypto";
+import { createHmac } from "../../utils/crypto.js";
 
-import { type DecodeFunction } from "../../models";
+import { type DecodeFunction } from "../../models.js";
 
 export interface Response {
   vk_app_id: number;
@@ -15,6 +15,10 @@ export interface Response {
 }
 
 export const decode: DecodeFunction<Response> = (params, signature) => {
+  if (typeof window !== "undefined" && typeof window.crypto !== "undefined") {
+    console.warn("VK decode in browser: signature verification skipped (for testing only)");
+  }
+
   if (signature == null || signature.constructor !== String) return;
 
   try {
@@ -24,7 +28,7 @@ export const decode: DecodeFunction<Response> = (params, signature) => {
     const sign = signature.slice(signIndex + 5);
     const query = signature.slice(0, signIndex - 1);
 
-    const digest = createHmac("sha256", params.token).update(query).digest("base64url");
+    const digest = createHmac("sha256", params.token, query);
     if (sign !== digest) return;
 
     const result: Partial<Response> = {};

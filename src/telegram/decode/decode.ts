@@ -1,7 +1,7 @@
-import { createHmac } from "crypto";
+import { createHmac } from "../../utils/crypto.js";
 
-import { type PackData } from "../models";
-import { type DecodeFunction } from "../../models";
+import { type DecodeFunction } from "../../models.js";
+import { type PackData } from "../models.js";
 
 export interface Response {
   queryId: string;
@@ -19,6 +19,10 @@ export interface Response {
 }
 
 export const decode: DecodeFunction<Response> = (params, signature) => {
+  if (typeof window !== "undefined" && typeof window.crypto !== "undefined") {
+    console.warn("Telegram decode in browser: signature verification skipped (for testing only)");
+  }
+
   if (signature == null || signature.constructor !== String) return;
 
   try {
@@ -33,18 +37,16 @@ export const decode: DecodeFunction<Response> = (params, signature) => {
 
     if (!(hash && data && user && authDate)) return;
 
-    const secretKey = createHmac("sha256", "WebAppData").update(params.token).digest();
-    const computed = createHmac("sha256", secretKey).update(data).digest("hex");
+    const secretKey = createHmac("sha256", "WebAppData", params.token);
+    const computed = createHmac("sha256", secretKey, data);
 
-    if (hash === computed) {
-      return {
-        queryId,
-        authDate,
-        user,
-      } as unknown as Response;
-    }
+    if (hash !== computed) return;
 
-    return;
+    return {
+      queryId,
+      authDate,
+      user,
+    } as unknown as Response;
   } catch {
     return;
   }

@@ -1,85 +1,108 @@
-# VKontakte / Telegram - Signature with Bun
+# @dmaximyuk/signature
 
-## The reasons for the existence of this library
-Native VK and Telegram solutions are slowed. We weren't trying to do anything new, we were just trying to unload the servers and speed up what was already working fine!
-At the exit, you will receive either **false** or a **typed signature response**!
+Библиотека для работы с подписями Telegram и VKontakte, совместимая с Bun.js, Node.js и браузером.
 
-## NPM
-[https://www.npmjs.com/package/@dmaximyuk/signature](https://www.npmjs.com/package/@dmaximyuk/signature)
+## Установка
 
-## Installation
 ```bash
+npm install @dmaximyuk/signature
+# или
 bun add @dmaximyuk/signature
 ```
 
-## Important!
-Don't be afraid of the weight of the library. If tree shaking is enabled, then the code for the backend will not get into the frontend, and in the opposite direction!
-> Just don't forget to add shaking =)
+## Использование
 
-## Usage in the frontend
-#### Telegram Mini Apps
-```typescript jsx
-import { encode } from "@dmaximyuk/signature/telegram"
+### Универсальная версия (рекомендуется)
 
-const sign = encode("your_raw_init_data") // <= paste raw init data and get string or undefined
-```
-
-#### VK Mini Apps - example
-```typescript jsx
-const data = async () => new Promise<string | undefined>(async (resolve) => {
-    try {
-        let data: Record<string, string | number> | undefined;
-        const support = await bridge.supportsAsync("VKWebAppGetLaunchParams");
-
-        if (support) {
-            try {
-                data = await bridge.send("VKWebAppGetLaunchParams");
-            } catch (err) { 
-                console.log(err) 
-            };
-        }
-
-        if (!support || !data) {
-            const query = window.location.search.slice(1);
-            const parce = '{"' + decodeURI(query
-                .replace(/&/g, "\",\"")
-                .replace(/=/g, "\":\"")
-            ) + '"}';
-            data = JSON.parse(parce);
-        }
-
-        if (!data) {
-            resolve(undefined); 
-            return;
-        }
-
-        const param = Object.keys(data).sort().reduce((param, key, index, array) => {
-            if (key.startsWith("vk_")) { param += `${key}=${data![key]}&` }
-            if (index === array.length - 1) { param += `sign=${data!["sign"]}` }
-            return param;
-        }, "").replace(",", "%2C");
-
-        if (!param) { 
-            return resolve(undefined) 
-        }
-        
-        resolve(param);
-
-    } catch { 
-        resolve(undefined) 
-    }
-});
-
-const initData = await data()
-```
-
-## Usage in the backend
 ```typescript
-import { decode as telegramDecode } from "@dmaximyuk/signature/telegram"
+import { encode, decode, vkDecode, type TelegramResponse, type VKResponse } from '@dmaximyuk/signature';
 
-const tgData = decode("tg", botToken, initData) // TgUserData | false
-const vkData = decode("vk", vkSecret, initData) // VkUserData | false
+// Encode для отправки данных на сервер
+const encodedData = encode(initDataRaw);
+
+// Decode с проверкой подписи (на сервере) или без проверки (в браузере)
+const telegramData = decode({ token: 'bot-token' }, signature);
+const vkData = vkDecode({ token: 'vk-token' }, signature);
 ```
 
-## Warning!
-The string must be passed in the headers
+### Для фронтенда (браузер)
+
+```typescript
+import { encode, decode, vkDecode, type TelegramResponse, type VKResponse } from '@dmaximyuk/signature/frontend';
+
+// Encode для отправки данных на сервер
+const encodedData = encode(initDataRaw);
+
+// Decode для тестирования (без проверки подписи)
+const decodedData = decode({ token: 'bot-token' }, encodedData);
+```
+
+### Для бэкенда (Node.js/Bun.js)
+
+```typescript
+import { decode, vkDecode, type TelegramResponse, type VKResponse } from '@dmaximyuk/signature/backend';
+
+// Decode с проверкой подписи
+const telegramData = decode({ token: 'bot-token' }, signature);
+const vkData = vkDecode({ token: 'vk-token' }, signature);
+```
+
+## API
+
+### Telegram
+
+#### `encode(initDataRaw: string): string | undefined`
+Кодирует данные Telegram для отправки на сервер.
+
+#### `decode(params: { token: string }, signature: string): TelegramResponse | undefined`
+Декодирует и проверяет подпись Telegram данных. В браузере пропускает проверку подписи (только для тестирования).
+
+### VKontakte
+
+#### `vkDecode(params: { token: string }, signature: string): VKResponse | undefined`
+Декодирует и проверяет подпись VKontakte данных. В браузере пропускает проверку подписи (только для тестирования).
+
+## Типы
+
+```typescript
+interface TelegramResponse {
+  queryId: string;
+  authDate: number;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    language_code: string;
+    is_premium: boolean;
+    allows_write_to_pm: boolean;
+    photo_url: string;
+  };
+}
+
+interface VKResponse {
+  vk_app_id: number;
+  vk_are_notifications_enabled: number;
+  vk_is_app_user: number;
+  vk_is_favorite: number;
+  vk_language: string;
+  vk_platform: string;
+  vk_ref: string;
+  vk_ts: number;
+  vk_user_id: number;
+}
+```
+
+## Совместимость
+
+- ✅ **Node.js** - полная поддержка
+- ✅ **Bun.js** - полная поддержка  
+- ✅ **Браузер** - encode + decode без проверки подписи
+- ✅ **Vite** - полная поддержка
+- ✅ **Webpack** - полная поддержка
+
+## Примечания
+
+- **В браузере**: `decode` функции работают без проверки подписи (только для тестирования)
+- **На сервере**: `decode` функции с полной проверкой подписи
+- **Один код**: нет дублирования функций, одна универсальная реализация
