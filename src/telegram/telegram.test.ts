@@ -15,5 +15,5 @@ const botToken = "8308844977:AAENPiOxpNizGIWN1_-rdn9tyrfIfDc7fQU";
 
 describe("telegram", () => {
   run("check work encode", 1, () => encode(TG_RAW_SECRET));
-  run("decode sign performance", 100_000, () => decode({ token: botToken }, initData));
+  run("decode sign performance", 100_000, () => decode({ token: botToken })(initData));
 });

@@ -1,68 +1,29 @@
 # @dmaximyuk/signature
 
-Библиотека для работы с подписями Telegram и VKontakte, совместимая с Bun.js, Node.js и браузером.
+A library for working with Telegram and VKontakte signatures, compatible with Bun.js, Node.js and the browser.
 
-## Установка
+## Installation
 
 ```bash
 npm install @dmaximyuk/signature
-# или
+# OR
 bun add @dmaximyuk/signature
 ```
 
-## Использование
-
-### Универсальная версия (рекомендуется)
+## Usage
 
 ```typescript
-import { encode, decode, vkDecode, type TelegramResponse, type VKResponse } from '@dmaximyuk/signature';
+import { telegramEncode, telegramDecode, vkontakteDecode, type TelegramResponse, type VKontakteResponse } from '@dmaximyuk/signature';
 
-// Encode для отправки данных на сервер
-const encodedData = encode(initDataRaw);
+// frontend (now available only telegram)
+const encodedData = telegramDecode(initDataRaw);
 
-// Decode с проверкой подписи (на сервере) или без проверки (в браузере)
-const telegramData = decode({ token: 'bot-token' }, signature);
-const vkData = vkDecode({ token: 'vk-token' }, signature);
+// backend
+const telegramData = telegramEncode({ token: 'tg-bot-token' })(encodedData);
+const vkData = vkontakteDecode({ token: 'vk-token' })("signature");
 ```
 
-### Для фронтенда (браузер)
-
-```typescript
-import { encode, decode, vkDecode, type TelegramResponse, type VKResponse } from '@dmaximyuk/signature/frontend';
-
-// Encode для отправки данных на сервер
-const encodedData = encode(initDataRaw);
-
-// Decode для тестирования (без проверки подписи)
-const decodedData = decode({ token: 'bot-token' }, encodedData);
-```
-
-### Для бэкенда (Node.js/Bun.js)
-
-```typescript
-import { decode, vkDecode, type TelegramResponse, type VKResponse } from '@dmaximyuk/signature/backend';
-
-// Decode с проверкой подписи
-const telegramData = decode({ token: 'bot-token' }, signature);
-const vkData = vkDecode({ token: 'vk-token' }, signature);
-```
-
-## API
-
-### Telegram
-
-#### `encode(initDataRaw: string): string | undefined`
-Кодирует данные Telegram для отправки на сервер.
-
-#### `decode(params: { token: string }, signature: string): TelegramResponse | undefined`
-Декодирует и проверяет подпись Telegram данных. В браузере пропускает проверку подписи (только для тестирования).
-
-### VKontakte
-
-#### `vkDecode(params: { token: string }, signature: string): VKResponse | undefined`
-Декодирует и проверяет подпись VKontakte данных. В браузере пропускает проверку подписи (только для тестирования).
-
-## Типы
+## Types
 
 ```typescript
 interface TelegramResponse {
@@ -93,16 +54,8 @@ interface VKResponse {
 }
 ```
 
-## Совместимость
+## Compatibility
 
-- ✅ **Node.js** - полная поддержка
-- ✅ **Bun.js** - полная поддержка  
-- ✅ **Браузер** - encode + decode без проверки подписи
-- ✅ **Vite** - полная поддержка
-- ✅ **Webpack** - полная поддержка
-
-## Примечания
-
-- **В браузере**: `decode` функции работают без проверки подписи (только для тестирования)
-- **На сервере**: `decode` функции с полной проверкой подписи
-- **Один код**: нет дублирования функций, одна универсальная реализация
+- ✅ **Node.js** - full support
+- ✅ **Bun.js** - full support
+- ✅ **Browser** - encode without signature verification

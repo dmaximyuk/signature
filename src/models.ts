@@ -5,5 +5,5 @@ export interface DecodeParams {
   token: string;
 }
 
-export type DecodeFunction<T> = (params: DecodeParams, signature: Signature) => T | undefined;
+export type DecodeFunction<T> = (params: DecodeParams) => (signature: Signature) => T | undefined;
 export type EncodeFunction = (initDataRaw: string | null | undefined) => Signature;
