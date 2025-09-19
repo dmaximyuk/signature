@@ -1,107 +1,61 @@
-# VKontakte / Telegram - Signature with Bun
+# @dmaximyuk/signature
 
-## The reasons for the existence of this library
-Native VK and Telegram solutions are slowed. We weren't trying to do anything new, we were just trying to unload the servers and speed up what was already working fine!
-At the exit, you will receive either **false** or a **typed signature response**!
-
-## NPM
-[https://www.npmjs.com/package/@dmaximyuk/signature](https://www.npmjs.com/package/@dmaximyuk/signature)
+A library for working with Telegram and VKontakte signatures, compatible with Bun.js, Node.js and the browser.
 
 ## Installation
+
 ```bash
+npm install @dmaximyuk/signature
+# OR
 bun add @dmaximyuk/signature
 ```
 
-## Performance ( Apple M4 Pro / 24/512gb )
-##### 100_000 elements:
-```
-1. TG:         164.29ms / 100_000 elements | 0.001643ms / 1 element
-2. VK:         139.85ms / 100_000 elements | 0.001399ms / 1 element
-3. VK Default: 233.25ms / 100_000 elements | 0.002332ms / 1 element
-```
+## Usage
 
-## Usage in the backend
 ```typescript
-import sign, { type TgUserData, type VkUserData } from "@dmaximyuk/signature"
+import { telegramEncode, telegramDecode, vkontakteDecode, type TelegramResponse, type VKontakteResponse } from '@dmaximyuk/signature';
 
-const tgData = sign("tg", initData, botToken) // TgUserData | false
-const vkData = sign("vk", initData, vkSecret) // VkUserData | false
+// frontend (now available only telegram)
+const encodedData = telegramDecode(initDataRaw);
+
+// backend
+const telegramData = telegramEncode({ token: 'tg-bot-token' })(encodedData);
+const vkData = vkontakteDecode({ token: 'vk-token' })("signature");
 ```
 
-## Usage in the frontend
-#### VK
-```typescript jsx
-const data = async () => new Promise<string | undefined>(async (resolve) => {
-    try {
-        let data: Record<string, string | number> | undefined;
-        const support = await bridge.supportsAsync("VKWebAppGetLaunchParams");
+## Types
 
-        if (support) {
-            try {
-                data = await bridge.send("VKWebAppGetLaunchParams");
-            } catch (err) { 
-                console.log(err) 
-            };
-        }
-
-        if (!support || !data) {
-            const query = window.location.search.slice(1);
-            const parce = '{"' + decodeURI(query
-                .replace(/&/g, "\",\"")
-                .replace(/=/g, "\":\"")
-            ) + '"}';
-            data = JSON.parse(parce);
-        }
-
-        if (!data) {
-            resolve(undefined); 
-            return;
-        }
-
-        const param = Object.keys(data).sort().reduce((param, key, index, array) => {
-            if (key.startsWith("vk_")) { param += `${key}=${data![key]}&` }
-            if (index === array.length - 1) { param += `sign=${data!["sign"]}` }
-            return param;
-        }, "").replace(",", "%2C");
-
-        if (!param) { 
-            return resolve(undefined) 
-        }
-        
-        resolve(param);
-
-    } catch { 
-        resolve(undefined) 
-    }
-});
-
-const initData = await data()
-```
-
-#### Telegram
-```typescript jsx
-function prepareAuthData(tgSecret: string): string {
-    const params = new URLSearchParams(tgSecret);
-
-    const authData = {
-        h: params.get("hash") || "",
-        u: {
-            query_id: params.get("query_id") || "",
-            auth_date: +(params.get("auth_date") || ""),
-            user: JSON.parse(params.get("user") || ""),
-        },
-        d: Array.from(params.entries())
-            .filter(([key]) => key !== "hash")
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([k, v]) => `${k}=${v}`)
-            .join("\n"),
-    };
-
-    return btoa(JSON.stringify(authData));
+```typescript
+interface TelegramResponse {
+  queryId: string;
+  authDate: number;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    language_code: string;
+    is_premium: boolean;
+    allows_write_to_pm: boolean;
+    photo_url: string;
+  };
 }
 
-const initData = prepareAuthData(tgSecret);
+interface VKResponse {
+  vk_app_id: number;
+  vk_are_notifications_enabled: number;
+  vk_is_app_user: number;
+  vk_is_favorite: number;
+  vk_language: string;
+  vk_platform: string;
+  vk_ref: string;
+  vk_ts: number;
+  vk_user_id: number;
+}
 ```
 
-## Warning!
-The string must be passed in the headers
+## Compatibility
+
+- ✅ **Node.js** - full support
+- ✅ **Bun.js** - full support
+- ✅ **Browser** - encode without signature verification
