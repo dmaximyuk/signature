@@ -41,8 +41,8 @@
   "private": false,
   "scripts": {
     "dev": "bun run ./index.ts",
-    "build": "rm -rf dist && bun x tsc & bun run build:declaration",
-    "build:declaration": "bun x tsc --emitDeclarationOnly --project tsconfig.types.json",
+    "build": "sh -c 'rm -rf dist && node node_modules/typescript/bin/tsc -p tsconfig.json && node node_modules/typescript/bin/tsc --emitDeclarationOnly -p tsconfig.types.json'",
+    "build:declaration": "node node_modules/typescript/bin/tsc --emitDeclarationOnly --project tsconfig.types.json",
     "test": "bun test"
   },
   "type": "module",
