@@ -1,32 +1,30 @@
 {
   "name": "@dmaximyuk/signature",
   "version": "1.0.14",
-  "description": "Quick signature for Telegram and VKontakte",
-  "homepage": "https://github.com/dmaximyuk/signature#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dmaximyuk/signature.git"
   },
-  "bugs": {
-    "url": "https://github.com/dmaximyuk/signature/issues"
-  },
-  "license": "MIT",
-  "private": false,
-  "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^24.3.0",
+    "prettier": "^3.6.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
-  "scripts": {
-    "dev": "bun run ./index.ts",
-    "build": "rm -rf dist && bun x tsc & bun run build:declaration",
-    "build:declaration": "bun x tsc --emitDeclarationOnly --project tsconfig.types.json",
-    "test": "bun test"
+  "bugs": {
+    "url": "https://github.com/dmaximyuk/signature/issues"
   },
+  "description": "Quick signature for Telegram and VKontakte",
+  "homepage": "https://github.com/dmaximyuk/signature#readme",
   "keywords": [
     "vk",
     "vkontakte",
@@ -39,12 +37,14 @@
     "start",
     "crypto"
   ],
-  "peerDependencies": {
-    "typescript": "^5"
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "bun run ./index.ts",
+    "build": "rm -rf dist && bun x tsc & bun run build:declaration",
+    "build:declaration": "bun x tsc --emitDeclarationOnly --project tsconfig.types.json",
+    "test": "bun test"
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "^24.3.0",
-    "prettier": "^3.6.2"
-  }
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }
